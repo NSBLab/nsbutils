@@ -14,9 +14,6 @@ dependencies = [
 testing = [
     "pytest>=8.4.2",
 ]
-tutorials = [
-    "ipykernel>=6.31.0",
-]
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
