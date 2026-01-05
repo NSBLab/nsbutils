@@ -1,16 +1,21 @@
+"""Plotting utilities for brain surfaces and heatmaps."""
+
+from __future__ import annotations
 import numpy as np
 from matplotlib import colors
 import matplotlib.pyplot as plt
-from matplotlib.axes import Axes
 from scipy.ndimage import zoom
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from typing import Optional, Union
-from numpy.typing import ArrayLike
+from typing import Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+    from matplotlib.axes import Axes
 
 def plot_heatmap(
     data: ArrayLike,
-    ax: Optional[Axes] = None,
-    center: Optional[float] = None,
+    ax: Union[Axes, None] = None,
+    center: Union[float, None] = None,
     cmap: Union[str, colors.Colormap] = "turbo",
     cbar: bool = False,
     square: bool = True,

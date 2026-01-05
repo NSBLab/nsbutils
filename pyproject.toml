@@ -1,7 +1,7 @@
 [project]
 name = "nsbutils"
 version = "0.1.0"
-description = "Neuroimaging tools developed by the Neural Systems and Behaviour lab"
+description = "Neuroimaging tools developed by the Neural Systems and Behaviour Lab"
 readme = "README.rst"
 requires-python = ">=3.9"
 dependencies = [
@@ -26,3 +26,6 @@ packages = ["nsbutils"]
 python_functions = ["test_"]
 python_files = ["test_*.py",]
 testpaths = ["tests",]
+
+[project.urls]
+"Homepage" = "https://nsbutils.readthedocs.io"

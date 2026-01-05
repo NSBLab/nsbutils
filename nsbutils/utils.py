@@ -1,7 +1,12 @@
+"""Utility functions for neuroimaging data manipulation and processing."""
+
+from __future__ import annotations
 import numpy as np
-from typing import Union, List, Optional
+from typing import Union, List, TYPE_CHECKING
 from warnings import warn
-from numpy.typing import NDArray, ArrayLike
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray, ArrayLike
 
 def unmask(
     data: ArrayLike,
@@ -110,7 +115,7 @@ def threshold_matrix(
     matrix = np.asarray(matrix)
 
     if threshold < 0 or threshold > 100:
-        raise ValueError(f"`threshold` must be between 0 and 100.")
+        raise ValueError("`threshold` must be between 0 and 100.")
     
     if (matrix == matrix.T).all():
         # If matrix is symmetric, only consider upper triangle for thresholding
@@ -137,7 +142,7 @@ def resample_matrix(
     preserve_repeats: bool = False,
     preserve_zeros: bool = False,
     preserve_symmetry: bool = False,
-    seed: Optional[int] = None
+    seed: Union[int, None] = None
 ) -> NDArray:
     """
     Generates a matrix of noise in the same pattern as a template.
