@@ -2,13 +2,26 @@ Neuroimaging tools developed by the `Neural Systems and Behaviour Lab <https://w
 
 Installation
 ------------
-``nsbutils`` works with Python 3.9+, and can be pip-installed into your environment via ``pip install git+https://github.com/NSBLab/nsbutils.git``
+``nsbutils`` works with Python 3.9+, and can be pip-installed into your environment via:
 
-This will clone ``main``, our most stable branch. To try out any newer features under development, clone from our ``dev`` branch instead via ``pip install git+https://github.com/NSBLab/nsbutils.git@dev``.
+::
+  
+  pip install git+https://github.com/NSBLab/nsbutils.git
 
-Alternatively, ``nsbutils`` can be added as a dependency to your ``pyproject.toml`` via `UV <https://docs.astral.sh/uv/>`_ by running ``uv add git+https://github.com/NSBLab/nsbutils.git``.
+This will clone ``main``, our most stable branch. To try out any newer features under development, clone from our ``dev`` branch instead via:
 
-If you encounter any issues, try reproducing the exact environment used for development via UV:
+::
+  
+  pip install git+https://github.com/NSBLab/nsbutils.git@dev
+
+Alternatively, ``nsbutils`` can be added as a dependency to your ``pyproject.toml`` with `UV <https://docs.astral.sh/uv/>`_ via:
+
+::
+  
+  uv add git+https://github.com/NSBLab/nsbutils.git
+
+If you encounter any problems, please consider `opening an issue <https://github.com/NSBLab/nsbutils/issues>`_. Meanwhile, try switching to the exact environment used for development via UV:
+
 ::
 
   git clone https://github.com/NSBLab/nsbutils
@@ -16,13 +29,12 @@ If you encounter any issues, try reproducing the exact environment used for deve
   uv venv --python 3.12.10
   uv sync --frozen
 
-If issues persist, please consider opening an issue on the `GitHub repository <https://github.com/NSBLab/nsbutils/issues>`_.
 Tests can be run with ``pytest``:
 
 ::
 
   cd nsbutils
-  pip install pytest
+  uv sync --extra testing # or simply `pip install pytest`
   pytest tests
 
 License information

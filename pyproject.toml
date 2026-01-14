@@ -1,21 +1,19 @@
 [project]
 name = "nsbutils"
 version = "0.1.0"
-description = "Neuroimaging tools developed by the Neural Systems and Behaviour lab"
+description = "Neuroimaging tools developed by the Neural Systems and Behaviour Lab"
 readme = "README.rst"
-requires-python = ">=3.9"
+requires-python = ">=3.9,<3.13"
 dependencies = [
     "matplotlib>=3.9.4",
     "numpy>=2.0.2",
     "scipy>=1.13.1",
+    "surfplot>=0.2.0",
 ]
 
 [project.optional-dependencies]
 testing = [
     "pytest>=8.4.2",
-]
-tutorials = [
-    "ipykernel>=6.31.0",
 ]
 
 [build-system]
@@ -29,3 +27,6 @@ packages = ["nsbutils"]
 python_functions = ["test_"]
 python_files = ["test_*.py",]
 testpaths = ["tests",]
+
+[project.urls]
+"Homepage" = "https://nsbutils.readthedocs.io"

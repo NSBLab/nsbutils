@@ -1,16 +1,178 @@
-import numpy as np
+"""Plotting utilities for brain surfaces and heatmaps."""
+
+from __future__ import annotations
+from tempfile import TemporaryDirectory
+from typing import Any, Tuple, Union, TYPE_CHECKING
+from warnings import warn
 from matplotlib import colors
 import matplotlib.pyplot as plt
-from matplotlib.axes import Axes
-from scipy.ndimage import zoom
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from typing import Optional, Union
-from numpy.typing import ArrayLike
+import numpy as np
+from scipy.ndimage import zoom
+from surfplot import Plot
+
+if TYPE_CHECKING:
+    from pathlib import Path
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure
+    from numpy.typing import ArrayLike
+
+def plot_surf(
+    mesh: Union[str, Path],
+    data: ArrayLike,
+    layout: str = "row",
+    views: list[str] = ["lateral", "medial"],
+    color_range: Union[Tuple[float, float], str] = "individual",
+    center: Union[float, None] = None,
+    cmap: Union[str, colors.Colormap] = "turbo",
+    cbar: bool = False,
+    cbar_label: Union[str, None] = None,
+    cbar_kws: Union[dict[str, Any], None] = None,
+    labels: Union[list[str], None] = None,
+    label_kws: Union[dict[str, Any], None] = None,
+    outline: bool = False,
+    zoom: float = 1.25,
+    ax: Union[Axes, list[Axes], None] = None
+) -> Union[Figure, None]:
+    """
+    Plot brain surface data on a given surface mesh.
+
+    Parameters
+    ----------
+    mesh : str or pathlib.Path
+        The surface mesh to be used.
+    data : array-like
+        Data to be plotted on the surface. Can be 1D or 2D with shape (n_verts, n_maps). Note that 
+        NaNs are not colored, but zeros are.
+    layout : str, optional
+        Layout of the subplots, either "row" or "col", by default "row".
+    views : list of str, optional
+        List of views to display, by default ["lateral", "medial"].
+    color_range : tuple of float, str, or None, optional
+        Defines the color limits for the colormap. Can be:
+        - A tuple (vmin, vmax) to apply the same color scale across all maps.
+        - "group" to compute global (min, max) across all data columns and apply uniformly.
+        - "individual" to compute limits separately for each brain map.
+        By default, color range is determined individually per map.
+    center : float, optional
+        Center value for colormap scaling. If provided, color range will be symmetric around center.
+        Note that `center` is ignored if `color_range` is a tuple.
+    cmap : matplotlib colormap name or object, optional
+        Colormap to use for the data, by default "viridis".
+    cbar : bool, optional
+        Whether to display a colorbar, by default False.
+    cbar_label : str, optional
+        Label for the colorbar, by default None.
+    cbar_kws : dict, optional
+        Additional keyword arguments for the colorbar, by default None.
+    labels : list of str, optional
+        List of labels for each subplot, by default None.
+    label_kws : dict, optional
+        Additional keyword arguments for the labels, by default None.
+    outline : bool, optional
+        Whether to outline the data, by default False. Useful for parcellations.
+    zoom : float, optional
+        Zoom factor for the brain plot, by default 1.25.
+    ax : matplotlib.axes.Axes or list of Axes, optional
+        Axis or list of axes to plot on. If None, a new figure is created.
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+        The resulting figure if a new one is created, otherwise None.
+    """
+    data = np.asarray(data)
+
+    cbar_kws_ = {**dict(pad=0.01, fontsize=20, aspect=25, shrink=1, decimals=2, location="bottom"),
+                 **(cbar_kws or {})}
+    label_kws_ = {**dict(fontsize=20), **(label_kws or {})}
+    
+    data = np.squeeze(data)
+    if np.ndim(data) == 1 or np.shape(data)[1] == 1:
+        data = data.reshape(-1, 1)
+    
+    n_data = np.shape(data)[1]
+    
+    # Create the figure and axes
+    if ax is None:
+        if layout == "row":
+            fig, axs = plt.subplots(1, n_data, figsize=(len(views) * n_data * 1.5, 2))
+        elif layout == "col":
+            fig, axs = plt.subplots(n_data, 1, figsize=(3, n_data * 1.25))
+        else: 
+            raise ValueError("`layout` must be either 'row' or 'col'.")
+        fig.subplots_adjust(wspace=0.01, hspace=0.01)
+        axs = [axs] if n_data == 1 else axs.flatten()
+    else:
+        if isinstance(ax, list):
+            if len(ax) != n_data:
+                raise ValueError("Number of provided axes must match the number of brains to plot.")
+            axs = ax
+        else:
+            if n_data > 1:
+                raise ValueError("Multiple brains require a list of axes.")
+            axs = [ax]
+    
+    # Set the color range
+    if isinstance(color_range, tuple):
+        crange = color_range
+        if center is not None:
+            warn("`center` is ignored when `color_range` is a tuple.", UserWarning)
+    if color_range == "group":
+        vmax = np.nanmax(data)
+        vmin = np.nanmin(data)
+        if center is not None:
+            vrange = max(abs(vmax - center), abs(center - vmin))
+            crange = (center - vrange, center + vrange)
+        else:
+            crange = (vmin, vmax)
+    else:
+        crange = None
+
+    # To plot multiple brain maps, save each figure to a temporary file then load it into the axes
+    with TemporaryDirectory() as temp_dir:
+        for i, ax in enumerate(axs):
+
+            # Set color range for centered "individual"
+            if color_range == "individual" and center is not None:
+                vmax = np.nanmax(data[:, i])
+                vmin = np.nanmin(data[:, i])
+                vrange = max(abs(vmax - center), abs(center - vmin))
+                crange = (center - vrange, center + vrange)
+                    
+            # Use surfplot to plot the data
+            p = Plot(surf_lh=mesh, views=views, size=(500, 250), zoom=zoom)
+            p.add_layer(data=data[:, i], cmap=cmap, cbar=cbar, color_range=crange, # type: ignore # add_layer accepts strings and Colormaps
+                        cbar_label=cbar_label, zero_transparent=False)
+            if outline:
+                p.add_layer(data[:, i], as_outline=True, cmap="gray", cbar=False,
+                            color_range=(1, 2), zero_transparent=False)
+            temp_file = f"{temp_dir}/figure_{i}.png"
+            fig = p.build(cbar_kws=cbar_kws_)
+            plt.close(fig)
+            
+            # Save the surfplot figure
+            fig.savefig(temp_file, bbox_inches='tight')
+            # Load the figure into the axes
+            ax.imshow(plt.imread(temp_file))
+            for spine in ax.spines.values():
+                spine.set_visible(False)
+            ax.set_xticks([])
+            ax.set_yticks([])
+            # Plot labels
+            if labels is not None:
+                if layout == "row":
+                    ax.set_title(labels[i], pad=0, fontsize=label_kws_["fontsize"])
+                elif layout == "col":
+                    ax.set_ylabel(labels[i], labelpad=0, rotation=0, ha="right",
+                                  fontsize=label_kws_["fontsize"])
+    
+    return fig if ax is None else None # type: ignore # this is set in the "create the figure" block above
 
 def plot_heatmap(
     data: ArrayLike,
-    ax: Optional[Axes] = None,
-    center: Optional[float] = None,
+    ax: Union[Axes, None] = None,
+    center: Union[float, None] = None,
     cmap: Union[str, colors.Colormap] = "turbo",
     cbar: bool = False,
     square: bool = True,
@@ -95,7 +257,7 @@ def plot_heatmap(
     if cbar:
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.08)  # Adjust size and padding
-        cb = plt.colorbar(mesh, cax=cax)
+        plt.colorbar(mesh, cax=cax)
 
     # Set frame around heatmap
     for _, spine in ax.spines.items():
