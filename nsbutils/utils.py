@@ -1,9 +1,9 @@
 """Utility functions for neuroimaging data manipulation and processing."""
 
 from __future__ import annotations
-import numpy as np
 from typing import Union, List, TYPE_CHECKING
 from warnings import warn
+import numpy as np
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray, ArrayLike
