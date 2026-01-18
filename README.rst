@@ -6,25 +6,25 @@ Installation
 ------------
 ``nsbutils`` works with Python 3.9+, and can be pip-installed into your environment via:
 
-.. code_block:: bash
+.. code-block:: bash
   
   pip install git+https://github.com/NSBLab/nsbutils.git
 
 This will clone ``main``, our most stable branch. To try out any newer features under development, clone from our ``dev`` branch instead via:
 
-.. code_block:: bash
+.. code-block:: bash
   
   pip install git+https://github.com/NSBLab/nsbutils.git@dev
 
 Alternatively, ``nsbutils`` can be added as a dependency to your ``pyproject.toml`` with `UV <https://docs.astral.sh/uv/>`_ via:
 
-.. code_block:: bash
+.. code-block:: bash
   
   uv add git+https://github.com/NSBLab/nsbutils.git
 
 If you encounter any problems, please consider `opening an issue <https://github.com/NSBLab/nsbutils/issues>`_. Meanwhile, try switching to the exact environment used for development via UV:
 
-.. code_block:: bash
+.. code-block:: bash
 
   git clone https://github.com/NSBLab/nsbutils
   cd nsbutils
@@ -33,7 +33,7 @@ If you encounter any problems, please consider `opening an issue <https://github
 
 Tests can be run with ``pytest``:
 
-.. code_block:: bash
+.. code-block:: bash
 
   cd nsbutils
   pip install pytest  # or `uv sync --extra testing`
