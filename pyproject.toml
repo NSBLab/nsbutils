@@ -3,7 +3,7 @@ name = "nsbutils"
 version = "0.1.0"
 description = "Neuroimaging tools developed by the Neural Systems and Behaviour Lab"
 readme = "README.rst"
-requires-python = ">=3.9,<3.13"
+requires-python = ">=3.9"
 dependencies = [
     "matplotlib>=3.9.4",
     "numpy>=2.0.2",
