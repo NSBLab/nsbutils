@@ -118,7 +118,7 @@ def plot_surf(
         crange = color_range
         if center is not None:
             warn("`center` is ignored when `color_range` is a tuple.", UserWarning)
-    if color_range == "group":
+    elif color_range == "group":
         vmax = np.nanmax(data)
         vmin = np.nanmin(data)
         if center is not None:
