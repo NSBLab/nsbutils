@@ -502,8 +502,40 @@ def plot_surf(
 
 def compute_roi_midline_edges(verts, faces, labeling, verbose=False):
     """
-    Compute ROI boundaries using midpoints between label boundaries.
-    Matches MATLAB findROIboundaries.m behavior, including medial wall borders.
+    Compute ROI boundary line segments on a triangular mesh. The boundary is approximated 
+    within each triangle using midpoints of edges whose incident vertices belong to 
+    different ROI labels.
+
+    Parameters
+    ----------
+    verts : array_like of shape (n_vertices, 3)
+        Vertex coordinates.
+    faces : array_like of shape (n_faces, 3)
+        Triangle indices into ``verts``.
+    labeling : array_like of shape (n_vertices,)
+        Integer ROI label per vertex. ``0`` is treated as background/mask (e.g.,
+        medial wall). NaNs are converted to 0.
+    verbose : bool, optional
+        If True, print a message when no boundaries are found.
+
+    Returns
+    -------
+    xe, ye, ze : np.ndarray
+        1D float arrays of equal length encoding the polyline(s) for Plotly
+        ``Scatter3d``. Each line segment is represented by two points followed by
+        a ``np.nan`` separator (i.e., ``[x0, x1, nan, x0, x1, nan, ...]``).
+        If no boundaries are found, all three arrays are empty.
+
+    Notes
+    -----
+    - If a triangle contains exactly two unique labels (including the common case
+      ``{0, X}`` for medial-wall vs ROI), two of its edges will cross a label
+      boundary; the function adds a segment connecting the midpoints of those two
+      edges.
+    - If a triangle contains three unique labels, the function treats it as a
+      three-way junction and adds three segments from the triangle centroid to
+      the midpoint of each edge.
+
     """
     labeling = np.asarray(labeling)
     labeling = np.nan_to_num(labeling, nan=0).astype(int)
