@@ -89,7 +89,7 @@ def plot_surf_single(
         ROI labels of shape ``(n_vertices,)``. Vertices labeled ``0`` are treated as
         masked (e.g., medial wall) and are drawn in the base surface color.
     fig : plotly.graph_objects.Figure, optional
-        If provided, add traces to this figure. If ``None``, a new 1×1 figure is created.
+        If provided, add traces to this figure. If ``None``, a new 1x1 figure is created.
     row, col : int, optional
         Target subplot (1-indexing). Only used when ``fig`` is provided.
     view : str
